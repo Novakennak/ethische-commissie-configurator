@@ -10,10 +10,12 @@ Bij het opzetten van een ethische commissie zijn er veel keuzes te maken over ma
 
 De configurator behandelt veertien ontwerpkeuzes, verdeeld over vier clusters:
 
-- **Inhoud & verantwoording** — Scope, Doorwerking, Transparantie.
-- **Werkwijze & agenda** — Type advies, Agendabeheer, Casusintake.
-- **Bevoegdheid & structuur** — Mandaat, Positionering, Reikwijdte, Bezwaar & herziening.
-- **Samenstelling & organisatie** — Intern/extern, Diversiteit, Termijn, Middelen.
+| Cluster | Ontwerpkeuzes |
+|---|---|
+|  **Inhoud & verantwoording** | Scope · Doorwerking · Transparantie |
+|  **Werkwijze & agenda** | Type advies · Agendabeheer · Casusintake |
+|  **Bevoegdheid & structuur** | Mandaat · Positionering · Reikwijdte · Bezwaar & herziening |
+|  **Samenstelling & organisatie** | Intern/extern · Diversiteit · Termijn · Middelen |
 
 Daarnaast wordt gevraagd naar het verwachte aantal casussen per jaar en naar het waardenkader waaraan de commissie casussen toetst.
 

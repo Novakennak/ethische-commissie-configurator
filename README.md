@@ -1,12 +1,12 @@
 # Ethische Commissie Configurator
 
-Interactief instrument voor het maken van ontwerpkeuzes bij een ethische commissie voor digitale ethiek: algoritmes, AI, data en digitalisering.
+Interactief instrument voor het maken van ontwerpkeuzes bij een ethische commissie voor digitale ethiek.
 
 **Live versie:** https://novakennak.github.io/ethische-commissie-configurator/
 
 ## Wat is dit?
 
-Bij het opzetten van een ethische commissie zijn er veel keuzes te maken over mandaat, samenstelling, positionering, doorwerking en werkwijze. Er bestaat geen sjabloon: elke keuze heeft consequenties en hangt samen met andere keuzes. Deze configurator maakt die keuzes expliciet en bespreekbaar, en detecteert automatisch spanningsvelden tussen keuzes.
+Bij het opzetten van een ethische commissie zijn er veel keuzes te maken over mandaat, samenstelling, positionering, doorwerking en werkwijze. Er bestaat niet zoiets als één vast stappenplan. Elke keuze heeft namelijk belangrijke consequenties en hangt samen met andere keuzes. De juiste keuzes hangen daarom af van de organisatie waarvoor de ethische commissie wordt opgericht, en de context waarin deze zich bevindt. Deze configurator maakt die keuzes expliciet en bespreekbaar, en detecteert automatisch spanningsvelden tussen keuzes.
 
 De configurator behandelt veertien ontwerpkeuzes, verdeeld over vier clusters:
 

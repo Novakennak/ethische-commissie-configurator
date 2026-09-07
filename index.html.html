@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ethische Commissie Configurator</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  /* Rijkshuisstijl online kleuren */
+  --lintblauw:#154273;          /* logo- en headerblauw */
+  --hemelblauw:#007bc7;         /* interactie-elementen */
+  --donkerblauw:#01689b;        /* links */
+  --hemelblauw-t1:#b3d7ee;      /* hemelblauw tint 1 */
+  --hemelblauw-t2:#d9ebf7;      /* hemelblauw tint 2 */
+  --geel:#ffb612;               /* rijkshuisstijl geel */
+  --bg:#f3f3f3;--surface:#FFFFFF;--text:#282828;--muted:#696969;
+  --border:#cccccc;
+  --accent:var(--lintblauw);--accent-dim:var(--hemelblauw-t2);--accent-mid:var(--hemelblauw-t1);
+  --warn-bg:#fff4d2;--warn-bd:var(--geel);--radius:0;
+  --font-s:'RO Sans','Segoe UI',Verdana,Arial,sans-serif;
+  --font-d:var(--font-s);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-s);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh}
+
+/* Header */
+.hdr{background:var(--lintblauw);color:#fff;padding:0}
+.hdr-inner{max-width:1120px;margin:0 auto;padding:30px 36px 26px;display:flex;align-items:flex-start;justify-content:space-between;gap:32px;flex-wrap:wrap}
+.hdr-text{flex:1 1 320px;min-width:0}
+.hdr-text h1{font-family:var(--font-s);font-size:26px;font-weight:700;line-height:1.25;margin-bottom:6px}
+.beta-badge{display:inline-block;background:var(--geel);color:#282828;font-size:12px;font-weight:700;padding:3px 10px;vertical-align:middle;margin-left:10px;letter-spacing:.02em;white-space:nowrap}
+.hdr-text h1 em{font-style:normal;font-weight:400;color:rgba(255,255,255,.85)}
+.hdr-text p{color:rgba(255,255,255,.85);font-size:13.5px;max-width:440px;line-height:1.5}
+.hdr-org{flex-shrink:0;display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.hdr-field{display:flex;flex-direction:column;min-width:220px}
+.hdr-org label{display:block;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.75);margin-bottom:6px;font-weight:600}
+.hdr-org-inp{width:100%;padding:8px 13px;border:1.5px solid rgba(255,255,255,.45);border-radius:0;background:rgba(255,255,255,.1);color:#fff;font-family:var(--font-s);font-size:13.5px;outline:none;transition:border-color .15s,background .15s}
+.hdr-org-inp:focus{border-color:#fff;background:rgba(255,255,255,.18)}
+.hdr-org-inp::placeholder{color:rgba(255,255,255,.55)}
+
+/* Layout */
+.wrap{max-width:1120px;margin:0 auto;padding:0 36px}
+
+/* Presets */
+.presets-bar{background:var(--surface);border:1px solid var(--border);border-radius:0;padding:16px 20px;margin:24px 0}
+.presets-lbl{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px}
+.presets-sub{font-size:12px;color:var(--muted);margin-bottom:12px}
+.presets-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.preset-btn{padding:11px 13px;border:1.5px solid var(--border);border-radius:0;background:transparent;cursor:pointer;text-align:left;transition:border-color .15s,background .15s;font-family:var(--font-s);width:100%}
+.preset-btn:hover{border-color:var(--hemelblauw);background:var(--hemelblauw-t2)}
+.preset-btn.active-preset{border-color:var(--hemelblauw);background:var(--hemelblauw-t2)}
+.preset-name{display:block;font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px}
+.preset-tag{display:inline-block;font-size:10px;font-weight:500;padding:1px 7px;border-radius:0;background:var(--hemelblauw-t2);color:var(--donkerblauw);margin-bottom:4px}
+.preset-desc{display:block;font-size:10.5px;color:var(--muted);line-height:1.35}
+
+/* Context card */
+.context-card{background:var(--surface);border:1px solid var(--border);padding:16px 20px;margin-bottom:24px}
+.context-lbl{font-size:13.5px;font-weight:700;color:var(--text);margin-bottom:10px}
+.context-segs{max-width:560px}
+.context-def{font-size:12px;color:var(--muted);margin-top:9px;line-height:1.6}
+.context-advies{font-size:12px;color:var(--text);margin-top:9px;line-height:1.6;background:var(--hemelblauw-t2);border-left:3px solid var(--hemelblauw);padding:8px 12px}
+.context-advies:empty{display:none}
+
+/* Intro teksten */
+.tool-intro{font-size:13px;color:var(--text);line-height:1.7;margin:24px 0 0;clear:both}
+
+/* Main grid */
+.grid{display:grid;grid-template-columns:1fr 370px;gap:36px;align-items:start}
+
+/* Group headers */
+.group-hd{margin:26px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--border)}
+.group-hd:first-child{margin-top:0}
+.group-hd-row{display:flex;align-items:center;gap:8px}
+.group-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.group-hd h2{font-size:11px;text-transform:uppercase;letter-spacing:.12em;font-weight:700}
+.group-sub{font-size:11.5px;color:var(--muted);margin-top:3px}
+
+/* Dimension card */
+.dim{background:var(--surface);border:1px solid var(--border);border-radius:0;padding:16px 20px 14px;margin-bottom:8px;transition:box-shadow .15s}
+.dim:hover{box-shadow:0 2px 14px rgba(0,0,0,.065)}
+.dim-title-row{display:flex;align-items:center;margin-bottom:10px}
+.dim-title{font-family:var(--font-s);font-size:14.5px;font-weight:700}
+
+/* Segmented control */
+.seg-group{display:flex;border:1.5px solid var(--border);border-radius:0;overflow:hidden;margin-bottom:10px;background:var(--bg)}
+.seg{flex:1;min-width:0;padding:8px 5px;font-size:10.5px;line-height:1.3;text-align:center;cursor:pointer;border:none;border-right:1px solid var(--border);background:transparent;color:var(--muted);font-family:var(--font-s);font-weight:400;transition:background .15s,color .15s;word-break:break-word}
+.seg:last-child{border-right:none}
+.seg:hover:not(.on){background:var(--hemelblauw-t2);color:var(--donkerblauw)}
+.seg.on{background:var(--hemelblauw);color:#fff;font-weight:600;position:relative;z-index:1}
+.dim-desc{font-size:12px;color:var(--muted);line-height:1.6;border-top:1px solid var(--bg);padding-top:9px;min-height:58px}
+
+/* Construct section */
+.construct-intro{font-size:12.5px;color:var(--muted);line-height:1.65;margin-bottom:10px;max-width:580px}
+.construct-card{background:#fff9e6;border:1px solid #f0d999;border-radius:0;padding:16px 20px 14px;margin-bottom:8px}
+.value-tags{display:flex;flex-wrap:wrap;gap:6px;min-height:34px;margin-bottom:12px;align-items:center}
+.value-tag{display:inline-flex;align-items:center;gap:4px;background:var(--hemelblauw-t2);border:1px solid var(--hemelblauw-t1);color:var(--donkerblauw);border-radius:0;padding:4px 8px 4px 12px;font-size:12px;font-weight:500;transition:background .15s}
+.value-tag:hover{background:#d4e5f5}
+.vtag-x{width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;line-height:1;cursor:pointer;opacity:.55;transition:opacity .15s,background .15s;flex-shrink:0}
+.vtag-x:hover{opacity:1;background:rgba(1,104,155,.15)}
+.value-empty-msg{font-size:12px;color:var(--muted);font-style:italic}
+.value-input-row{display:flex;gap:8px;margin-bottom:7px}
+.value-select{flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:0;font-family:var(--font-s);font-size:13px;color:var(--text);background:var(--surface);outline:none;cursor:pointer;transition:border-color .15s}
+.value-select:focus{border-color:var(--hemelblauw)}
+.value-select:disabled{opacity:.45;cursor:not-allowed}
+.value-input{flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:0;font-family:var(--font-s);font-size:13px;color:var(--text);background:var(--surface);outline:none;transition:border-color .15s}
+.value-input:focus{border-color:var(--hemelblauw)}
+.value-input:disabled{opacity:.45;cursor:not-allowed}
+.value-counter{font-size:11px;color:var(--muted);text-align:right}
+.value-counter.full{color:#94710a;font-weight:600}
+.btn-add{padding:8px 14px;border-radius:0;font-family:var(--font-s);font-size:13px;font-weight:500;cursor:pointer;border:none;background:var(--hemelblauw);color:#fff;white-space:nowrap;transition:background .15s}
+.btn-add:hover{background:var(--donkerblauw)}
+.btn-add:disabled{opacity:.4;cursor:not-allowed}
+
+/* Right panel */
+.panel{position:sticky;top:24px;background:var(--surface);border:1px solid var(--border);border-radius:0;overflow-y:auto;overflow-x:hidden;max-height:calc(100vh - 48px)}
+.arch-box{padding:18px 20px 16px;border-bottom:1px solid var(--border);background:var(--lintblauw)}
+.arch-pre{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.75);margin-bottom:7px}
+.arch-org{font-size:11.5px;color:rgba(255,255,255,.8);margin-bottom:4px;font-style:italic}
+.arch-filler{font-size:11px;color:rgba(255,255,255,.75);margin-top:6px}
+.arch-type{font-family:var(--font-s);font-size:19px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:6px}
+.arch-desc{font-size:11.5px;color:rgba(255,255,255,.85);line-height:1.5}
+.date-stamp{font-size:10px;color:rgba(255,255,255,.75);margin-top:6px}
+.vp-section{padding:12px 18px;border-bottom:1px solid var(--border)}
+.vp-title{font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:600;margin-bottom:7px}
+.vp-chips{display:flex;flex-wrap:wrap;gap:5px}
+.vp-chip{background:var(--hemelblauw-t2);border:1px solid var(--hemelblauw-t1);color:var(--donkerblauw);border-radius:0;padding:2px 9px;font-size:10px;font-weight:500}
+.vp-empty{font-size:11px;color:var(--muted);font-style:italic}
+.tracks{padding:16px 18px}
+.trk-group{margin-bottom:16px}
+.trk-group:last-child{margin-bottom:0}
+.trk-glbl{font-size:12px;font-weight:700;margin-bottom:6px;padding-bottom:4px;border-bottom:2px solid currentColor;text-transform:none;letter-spacing:0}
+.trk-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid var(--bg)}
+.trk-row:last-child{border-bottom:none}
+.trk-name{font-size:12px;font-weight:400;color:var(--muted);flex-shrink:0}
+.trk-val{font-size:12px;color:var(--text);text-align:right;font-weight:700}
+.memo-card{border-top:1px solid var(--border);padding:16px 20px}
+.memo-card-title{font-size:9.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:600;margin-bottom:10px}
+.memo-body{font-size:12px;line-height:1.72;color:var(--text)}
+.memo-body strong{font-weight:600;color:var(--donkerblauw)}
+.panel-tensions{display:block;background:var(--warn-bg);border-top:1px solid var(--border);padding:10px 20px;font-size:12px;font-weight:700;color:#473a00;text-decoration:none}
+.panel-tensions:hover{text-decoration:underline}
+
+/* Info icon + tooltip */
+.info-icon{background:transparent;padding:0;display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1.5px solid var(--hemelblauw-t1);color:var(--donkerblauw);font-size:9.5px;font-weight:700;cursor:help;margin-left:6px;flex-shrink:0;vertical-align:middle;transition:background .15s,color .15s;font-style:normal;line-height:1;font-family:var(--font-s)}
+.info-icon:hover{background:var(--hemelblauw);color:#fff;border-color:var(--hemelblauw)}
+.gtip{position:fixed;z-index:9999;background:#154273;color:#fff;padding:11px 14px;border-radius:0;font-size:12.5px;line-height:1.55;max-width:290px;pointer-events:none;box-shadow:0 6px 20px rgba(0,0,0,.22);display:none;font-family:var(--font-s)}
+.gtip::after{content:'';position:absolute;top:-5px;left:var(--arrow,14px);width:10px;height:10px;background:#154273;transform:rotate(45deg);border-radius:2px}
+
+/* Tensions */
+.tensions-section{margin-top:30px;padding-bottom:48px}
+.tensions-title{font-family:var(--font-s);font-size:17px;font-weight:700;margin-bottom:6px}
+.tensions-intro{font-size:12px;color:var(--muted);margin-bottom:14px;max-width:640px;line-height:1.6}
+.tensions-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.tension-item{background:var(--warn-bg);border:1px solid #f0d999;border-left:4px solid var(--warn-bd);border-radius:0;padding:10px 13px;font-size:12px;color:#473a00;line-height:1.55}
+.tension-item strong{font-weight:600}
+.no-tensions{font-size:13px;color:var(--muted);font-style:italic}
+
+/* Buttons */
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.btn{padding:9px 18px;border-radius:6px;font-family:var(--font-s);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s;line-height:1}
+.btn-primary{background:var(--hemelblauw);color:#fff}
+.btn-primary:hover{background:var(--donkerblauw)}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-ghost:hover{background:var(--bg)}
+
+/* Footer */
+.ft{border-top:1px solid var(--border);padding:16px 0 20px;font-size:11.5px;color:var(--muted);line-height:1.7}
+
+.ft a{color:var(--donkerblauw);text-decoration:underline;text-decoration:none}
+.ft a:hover{text-decoration:underline}
+
+/* Print */
+@media print{
+  .hdr{background:var(--accent)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .hdr-org-inp{background:rgba(255,255,255,.1)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .seg.on{background:var(--hemelblauw)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .arch-box{background:var(--lintblauw)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .panel{position:static;max-height:none;overflow:visible}.panel-tensions{display:none}
+  .grid{grid-template-columns:1fr}.btn-row,.presets-bar{display:none}
+  .dim{break-inside:avoid}.tensions-grid{grid-template-columns:1fr}
+}
+/* Responsive */
+@media(max-width:860px){
+  .hdr-inner{flex-direction:column;align-items:flex-start;gap:16px;padding:24px 20px 20px}
+  .hdr-org{width:100%;flex-direction:column;gap:12px}
+  .hdr-field{width:100%;min-width:0}
+  .hdr-org{width:100%}
+  .grid{grid-template-columns:1fr}.panel{position:static}
+  .wrap{padding:0 16px}.tensions-grid{grid-template-columns:1fr}
+  .seg{font-size:9.5px;padding:7px 3px}.presets-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-inner">
+    <div class="hdr-text">
+      <h1>Ethische Commissie <em>Configurator</em> <span class="beta-badge">Bètaversie 0.6</span></h1>
+      <p>Verken een commissie digitale ethiek voor jouw organisatie</p>
+    </div>
+    <div class="hdr-org">
+      <div class="hdr-field">
+        <label for="org-name-input">Organisatie</label>
+        <input class="hdr-org-inp" type="text" id="org-name-input" placeholder="Naam van de organisatie&hellip;" maxlength="80" oninput="updateOrgName()">
+      </div>
+      <div class="hdr-field">
+        <label for="filler-name-input">Ingevuld door</label>
+        <input class="hdr-org-inp" type="text" id="filler-name-input" placeholder="Naam of namen (optioneel)&hellip;" maxlength="100" oninput="updateFillerName()">
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <p class="tool-intro">Een ethische commissie is een groep die gestructureerd morele dilemma’s bespreekt binnen een organisatie. Deze configurator richt zich op commissies voor digitale ethiek (algoritmes, AI, data en digitalisering) en maakt de belangrijkste ontwerpkeuzes bij het opzetten ervan expliciet en bespreekbaar. De werkelijkheid kent meer nuance en tussenvormen dan dit instrument kan tonen; gebruik de uitkomst als startpunt voor het gesprek, niet als voorschrift.</p>
+
+  <!-- Presets -->
+  <div class="presets-bar">
+    <div class="presets-lbl">Begin met een voorbeeldprofiel</div>
+    <div class="presets-sub">Klik op een van de vier profielen hieronder als startpunt en pas daarna elke dimensie naar wens aan. Of sla deze stap over en stel alles zelf in.</div>
+    <div class="presets-grid">
+      <button class="preset-btn" aria-pressed="false" id="pb-klankbord" onclick="applyPreset('klankbord')">
+        <span class="preset-tag">Licht</span>
+        <span class="preset-name">Intern klankbord</span>
+        <span class="preset-desc">Informeel adviesorgaan binnen de organisatie, weinig bureaucratie</span>
+      </button>
+      <button class="preset-btn" aria-pressed="false" id="pb-advies" onclick="applyPreset('advies')">
+        <span class="preset-tag">Gemiddeld</span>
+        <span class="preset-name">Semi-onafhankelijk adviesorgaan</span>
+        <span class="preset-desc">Evenwichtige commissie met enige onafhankelijkheid en doorwerking</span>
+      </button>
+      <button class="preset-btn" aria-pressed="false" id="pb-toets" onclick="applyPreset('toets')">
+        <span class="preset-tag">Zwaar</span>
+        <span class="preset-name">Onafhankelijk toetsorgaan</span>
+        <span class="preset-desc">Sterke poortwachter: systemen worden getoetst v&oacute;&oacute;r gebruik</span>
+      </button>
+      <button class="preset-btn" aria-pressed="false" id="pb-besluit" onclick="applyPreset('besluit')">
+        <span class="preset-tag">Zwaarst</span>
+        <span class="preset-name">Besluitvormend orgaan</span>
+        <span class="preset-desc">Bindende besluiten, volledig onafhankelijk van de lijnorganisatie</span>
+      </button>
+    </div>
+  </div>
+
+
+  <div class="grid">
+    <div>
+      <div class="context-card">
+          <div class="context-lbl">Hoeveel casussen zal de commissie jaarlijks behandelen?</div>
+          <div class="seg-group context-segs" id="volume-segs" role="group" aria-label="Verwacht aantal casussen per jaar">
+            <button class="seg" aria-pressed="false" onclick="pickVolume(0)">Enkele (1&ndash;5)</button>
+            <button class="seg" aria-pressed="false" onclick="pickVolume(1)">5&ndash;15</button>
+            <button class="seg" aria-pressed="false" onclick="pickVolume(2)">15&ndash;50</button>
+            <button class="seg" aria-pressed="false" onclick="pickVolume(3)">Meer dan 50</button>
+          </div>
+          <p class="context-def">Een casus is elk vraagstuk dat de commissie behandelt: van de beoordeling van een algoritme, AI-systeem of andere digitale toepassing tot een ethisch dilemma rond bijvoorbeeld datadeling, monitoring of beleid. Deze inschatting helpt bij het kiezen van een passende omvang en organisatievorm.</p>
+          <p class="context-advies" id="volume-advies"></p>
+        </div>
+
+      <div id="dims-col"></div>
+
+      <!-- Waardenkader — bewust als laatste geplaatst omdat waardenkeuze abstracter is dan de overige dimensies -->
+      <div class="group-hd">
+        <div class="group-hd-row"><span class="group-dot" style="background:#94710a"></span><h2 style="color:#94710a">Waardenkader</h2></div>
+      </div>
+      <p class="construct-intro">De kernwaarden waaraan de commissie elke casus afweegt (het ethische construct). Kies uit de lijst met gangbare publieke waarden of voeg eigen waarden toe. Er is geen universeel juiste lijst.</p>
+      <div class="construct-card">
+        <div class="value-tags" id="value-tags">
+          <span class="value-empty-msg">Nog geen waarden ingevoerd. Kies uit de lijst of voeg zelf toe.</span>
+        </div>
+        <div class="value-input-row">
+          <select class="value-select" id="value-select" onchange="addValueFromSelect()">
+            <option value="" selected disabled>Kies een waarde uit de lijst&hellip;</option>
+            <optgroup label="Democratie &amp; participatie">
+              <option>Participatie</option>
+              <option>Inclusiviteit</option>
+              <option>Toegankelijkheid</option>
+              <option>Transparantie</option>
+              <option>Maatschappelijke waarde</option>
+              <option>Duurzaamheid</option>
+            </optgroup>
+            <optgroup label="Rechtsstaat &amp; mensenrechten">
+              <option>Privacy</option>
+              <option>Non-discriminatie</option>
+              <option>Rechtvaardigheid</option>
+              <option>Rechtszekerheid</option>
+              <option>Rechtsbescherming</option>
+              <option>Uitlegbaarheid</option>
+              <option>Proportionaliteit</option>
+              <option>Menselijke autonomie</option>
+              <option>Menselijke waardigheid</option>
+            </optgroup>
+            <optgroup label="Bestuurskracht &amp; kwaliteit">
+              <option>Doelmatigheid</option>
+              <option>Doeltreffendheid</option>
+              <option>Verantwoording</option>
+              <option>Risicobewustzijn</option>
+              <option>Menselijke maat</option>
+              <option>Veiligheid</option>
+              <option>Betrouwbaarheid</option>
+              <option>Zorgvuldigheid</option>
+              <option>Vertrouwen</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="value-input-row">
+          <input class="value-input" type="text" id="value-input" placeholder="Of typ een eigen waarde&hellip;" maxlength="40"
+            onkeydown="if(event.key==='Enter'){addValue();event.preventDefault()}">
+          <button class="btn-add" id="add-val-btn" onclick="addValue()">+ Voeg toe</button>
+        </div>
+        <div class="value-counter" id="value-counter">0 / 10 waarden</div>
+      </div>
+    </div>
+
+    <!-- Right panel -->
+    <div class="panel">
+      <div class="arch-box">
+        <div class="arch-pre">Commissieprofiel</div>
+        <div class="arch-org" id="arch-org" style="display:none"></div>
+        <div class="arch-type" id="arch-type">&mdash;</div>
+        <div class="arch-desc" id="arch-desc"></div>
+        <div class="arch-filler" id="arch-filler" style="display:none"></div>
+        <div class="date-stamp" id="date-stamp"></div>
+      </div>
+      <div class="vp-section">
+        <div class="vp-title">Waardenkader</div>
+        <div class="vp-chips" id="vp-chips"><span class="vp-empty">Nog geen waarden ingevoerd</span></div>
+      </div>
+      <div class="tracks" id="tracks"></div>
+      <div class="memo-card">
+        <div class="memo-card-title">Profielbeschrijving &nbsp;<span style="font-weight:400;opacity:.6;text-transform:none;letter-spacing:0">(klik op Kopieer om te exporteren)</span></div>
+        <p class="memo-body" id="memo-body"></p>
+      </div>
+      <a class="panel-tensions" id="panel-tensions" href="#tensions-sectie" style="display:none"></a>
+    </div>
+  </div>
+
+  <!-- Tensions -->
+  <div class="tensions-section" id="tensions-sectie">
+    <div class="tensions-title">Spanningsvelden &amp; aandachtspunten</div>
+    <p class="tensions-intro">Onderstaande punten zijn automatisch gedetecteerd op basis van de gemaakte keuzes. Ze wijzen op combinaties die intern tegenstrijdig kunnen zijn of die extra aandacht verdienen bij de implementatie.</p>
+    <div class="tensions-grid" id="tensions"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="save-btn" onclick="saveProfile()" disabled title="Bibliotheek wordt geladen…">Profiel opslaan als afbeelding (PNG)</button>
+      <button class="btn btn-ghost" id="copy-btn" onclick="copyMemo()">Kopieer profielbeschrijving</button>
+      <button class="btn btn-ghost" onclick="window.print()">Afdrukken / PDF</button>
+    </div>
+  </div>
+
+  <footer class="ft">
+    Dit instrument is ontwikkeld door <strong>Koen van Kan</strong> (AI Governance Consultant &ndash; Rijks ICT Gilde, onderdeel van Rijksorganisatie ODI) op basis van onderzoek naar ethische commissies. De uitkomsten zijn indicatief en dienen uitsluitend ter ondersteuning van reflectie en besluitvorming. Aan de uitkomsten kunnen geen rechten worden ontleend. Voor vragen of opmerkingen: <a href="mailto:koen.kan@rijksoverheid.nl">koen.kan@rijksoverheid.nl</a>
+  </footer>
+</div>
+
+<script>
+/* ════ DATA ════ */
+const GROUPS = [
+  { id:'g4', label:'Inhoud & verantwoording',      color:'#94710a', sub:'Waarover gaat de commissie en wat gebeurt er met haar adviezen?', ids:['scope','doorwerking','transparantie'] },
+  { id:'g3', label:'Werkwijze & agenda',           color:'#42145f', sub:'Hoe komt de commissie tot een advies?', ids:['typeadvies','werkwijze','casuistiek'] },
+  { id:'g1', label:'Bevoegdheid & structuur',     color:'#01689b', sub:'Welke positie en zeggenschap heeft de commissie?', ids:['mandaat','positionering','reikwijdte','bezwaar'] },
+  { id:'g2', label:'Samenstelling & organisatie', color:'#275937', sub:'Wie zit erin en met welke middelen werkt de commissie?', ids:['samenstelling','diversiteit','termijn','middelen'] }
+];
+
+const DIMS = [
+  { id:'mandaat', short:'Mandaat', title:'Mandaat',
+    L:'Signalering', R:'Besluitvormend', def:1,
+    tags:['Signalering','Advies','Advies + Escalatie','Toetsend','Besluitvormend'],
+    descs:[
+      'Puur signalerende rol zonder formeel adviesrecht. De commissie brengt risico’s en dilemma’s onder de aandacht, maar heeft geen formele bevoegdheid om actie af te dwingen.',
+      'Niet-bindend advies op verzoek. De commissie adviseert, maar de opdrachtgever beslist zelf wat ermee wordt gedaan. Dit is de lichtste formele rol.',
+      'Advies met escalatierecht. De commissie adviseert, maar kan bij herhaalde negering van dat advies de kwestie formeel doorsturen naar het bestuur of de directie. Dit geeft meer tanden zonder dat de commissie zelfstandig beslissingen neemt.',
+      'Toetsende poortwachtersfunctie. Systemen of algoritmes worden formeel beoordeeld voordat ze in gebruik worden genomen. Zonder goedkeuring van de commissie gaat een systeem niet live.',
+      'Bindende beslissingsbevoegdheid. De commissie neemt zelfstandige, bindende beslissingen over de inzet van systemen. Dit is de zwaarste variant en vereist een solide juridische verankering.'
+    ]},
+  { id:'positionering', short:'Positionering', title:'Positionering',
+    L:'Ingebed', R:'Onafhankelijk', def:1,
+    tags:['Volledig ingebed','Losjes ingebed','Semi-onafhankelijk','Grotendeels onafhankelijk','Volledig onafhankelijk'],
+    descs:[
+      'Onderdeel van de bestaande organisatiestructuur (bijv. de CDO-afdeling). De commissie heeft geen eigen formeel bestaan en valt volledig onder de lijnorganisatie.',
+      'Rapporteert aan een directielid of CxO, maar heeft een eigen werkwijze en agenda. Er is een zekere werkautonomie zonder formele onafhankelijkheid.',
+      'Operationeel zelfstandig en vastgelegd via een instellingsbesluit of charter (een formeel document dat de commissie instelt en haar bevoegdheden regelt). Bestuurlijk is ze wel ingebed.',
+      'Overwegend onafhankelijk: eigen mandaat, eigen samenstelling en beperkte bestuurlijke inbedding via rapportagelijnen naar het bestuur.',
+      'Volledig zelfstandig orgaan buiten de lijnorganisatie. Heeft een eigen secretariaat en werkwijze, vergelijkbaar met een toezichthoudend orgaan.'
+    ]},
+  { id:'reikwijdte', short:'Reikwijdte', title:'Reikwijdte',
+    L:null, R:null, def:0,
+    tags:['Eén organisatie','Hoofdorganisatie + partners','Gedeeld in keten','Sectorbreed','Interorganisationeel'],
+    descs:[
+      'De commissie werkt uitsluitend voor de eigen organisatie. Geen formele rol naar partners of andere instanties.',
+      'Primair voor de eigen organisatie, maar met de mogelijkheid om ook advies te geven aan direct verbonden partners of uitvoeringsorganisaties.',
+      'Gedeelde commissie met verwante organisaties in dezelfde keten of hetzelfde stelsel. Kosten en capaciteit worden gedeeld; governance-afspraken zijn essentieel.',
+      'De commissie bedient meerdere organisaties binnen een sector of domein. Geschikt als sectorstandaard voor ethische toetsing.',
+      'Volledig interorganisationeel of onafhankelijk sectororgaan zonder binding aan een enkele organisatie. De zwaarste reikwijdte.'
+    ]},
+  { id:'bezwaar', short:'Bezwaar', title:'Bezwaar & herziening',
+    L:'Geen procedure', R:'Formeel', def:1,
+    tags:['Geen bezwaarmogelijkheid','Informeel overleg','Herzieningsverzoek','Onafhankelijke herbeoordeling','Volledige bezwaarprocedure'],
+    descs:[
+      'Beslissingen van de commissie zijn definitief. Er is geen formele mogelijkheid voor een indiener om bezwaar te maken. Dit geeft de commissie maximale slagkracht, maar kan als willekeurig worden ervaren.',
+      'Een indiener kan informeel contact opnemen om een beslissing te bespreken of te verduidelijken. Er zijn geen vaste termijnen of proceseisen; het gaat om een gesprek.',
+      'Een indiener kan schriftelijk vragen om herbeoordeling door dezelfde commissie, op basis van nieuwe informatie of onderbouwde bezwaren. De commissie beslist opnieuw.',
+      'Bij bezwaar wordt de casus beoordeeld door een onafhankelijke derde die niet betrokken was bij de oorspronkelijke beslissing. Dit vergroot de onpartijdigheid van de heroverweging.',
+      'Een volledig geformaliseerde bezwaarprocedure met vaste termijnen (bijv. bezwaar binnen 10 werkdagen, beslissing binnen 30 dagen), proceseisen en een onafhankelijke instantie. Standaard in medische en juridische toetsingsorganen.'
+    ]},
+  { id:'samenstelling', short:'Intern / extern', title:'Intern / extern',
+    L:'Intern', R:'Extern', def:2,
+    tags:['Volledig intern','Overwegend intern','Gemengd','Overwegend extern','Volledig extern'],
+    descs:[
+      'Alle leden zijn medewerkers van de eigen organisatie. Voordeel: veel contextkennis. Risico: mogelijke blinde vlekken en minder geloofwaardigheid naar buiten.',
+      'De meerderheid zijn interne medewerkers, aangevuld met een of twee externe adviseurs voor onafhankelijk perspectief.',
+      'Gelijke verhouding intern en extern. De interne leden brengen kennis van de organisatie; de externe leden brengen onafhankelijkheid en gespecialiseerde expertise.',
+      'De meerderheid zijn externe onafhankelijke experts. Enkele interne leden zorgen voor organisatiecontext. Verhoogt de geloofwaardigheid naar buiten.',
+      'Alle leden zijn extern en onafhankelijk. Maximale onafhankelijkheid, maar er is extra inspanning nodig om commissieleden voldoende context te geven.'
+    ]},
+  { id:'diversiteit', short:'Diversiteit', title:'Diversiteit',
+    L:'Uniforme expertise', R:'Breed divers', def:2,
+    tags:['Uniforme expertise','Hoofdzakelijk een discipline','Multidisciplinair','Interdisciplinair + perspectiefdiversiteit','Maximale diversiteit'],
+    descs:[
+      'Alle leden komen uit dezelfde discipline (bijv. uitsluitend juristen of data-wetenschappers). Voordeel: diepgaande expertise. Risico: blinde vlekken op andere terreinen.',
+      'Overwegend een discipline, met beperkte inbreng vanuit andere vakgebieden. Enige breedte, maar de dominante expertise kleurt de afwegingen.',
+      'Meerdere disciplines vertegenwoordigd, zoals recht, techniek, ethiek en beleid. Dit is de meest gangbare samenstelling bij overheidscommissies.',
+      'Naast meerdere disciplines ook bewuste aandacht voor diversiteit in achtergrond, ervaring en perspectief (bijv. ervaringsdeskundigheid van betrokken burgers).',
+      'Maximale diversiteit op alle dimensies: discipline, achtergrond, gender, cultuur en perspectief. Verkleint blinde vlekken het meest, maar vraagt meer procesbegeleiding.'
+    ]},
+  { id:'termijn', short:'Termijn', title:'Termijn',
+    L:'Ad-hoc', R:'Permanent', def:2,
+    tags:['Ad-hoc per casus','Pilot','Tijdelijk programma','Permanent met evaluatie','Permanent verankerd'],
+    descs:[
+      'De commissie wordt per casus bijeengeroepen en bestaat niet tussen casussen door. Licht en flexibel, maar er wordt geen gezamenlijke ervaring of consistente oordeelslijn opgebouwd.',
+      'De commissie draait als pilot voor een afgebakende periode (bijv. een jaar), waarna besloten wordt over voortzetting. Geschikt om ervaring op te doen zonder grote verplichtingen.',
+      'De commissie bestaat voor de duur van een programma of opgave en wordt daarna opgeheven of herzien. Past bij organisaties met een tijdelijke digitaliseringsopgave.',
+      'De commissie is permanent, met een vaste evaluatiehorizon (bijv. elke twee jaar) waarop mandaat en werkwijze worden herijkt.',
+      'De commissie is permanent verankerd in de governance van de organisatie, bijvoorbeeld via een instellingsbesluit. Maakt het mogelijk om over jaren heen een consistente oordeelslijn (moresprudentie) op te bouwen.'
+    ]},
+  { id:'middelen', short:'Middelen', title:'Middelen',
+    L:'Geen eigen middelen', R:'Eigen budget + secretariaat', def:1,
+    tags:['Geen eigen middelen','Beperkte ondersteuning','Gedeeld secretariaat','Eigen secretariaat','Eigen budget + secretariaat'],
+    descs:[
+      'Commissieleden doen het werk naast hun reguliere functie, zonder ondersteuning of budget. Risico: de commissie verzandt zodra de werkdruk elders stijgt.',
+      'Er is beperkte ondersteuning, bijvoorbeeld een secretaris die enkele uren per week beschikbaar is. Voldoende voor een lage casusfrequentie.',
+      'De commissie deelt een secretariaat met andere organen of teams. De ondersteuning is structureel maar niet exclusief.',
+      'De commissie heeft een eigen toegewijd secretariaat dat casussen voorbereidt, verslaglegging doet en de voortgang bewaakt.',
+      'De commissie heeft een eigen budget (voor externe expertise, onderzoek, opleiding) en een toegewijd secretariaat. Maximale slagkracht, maar let op: wie het budget toekent, heeft invloed. Voor echte onafhankelijkheid hoort het budget niet jaarlijks ter discussie te staan bij de opdrachtgever.'
+    ]},
+  { id:'typeadvies', short:'Type advies', title:'Type advies',
+    L:'Casusadvies', R:'Beleid', def:1,
+    tags:['Alleen casusadvies','Vooral casusadvies','Gemengd','Vooral beleidsadvies','Alleen beleid'],
+    descs:[
+      'De commissie adviseert uitsluitend over concrete, individuele casussen: een specifiek systeem, project of dilemma. Beleidsvragen (bijvoorbeeld: ‘wat vinden wij als organisatie van ChatGPT?’) worden door andere organen behandeld, zoals de directie of een beleidsafdeling.',
+      'De commissie adviseert vooral over concrete casussen, maar kan bij uitzondering ook een beleidsvraag oppakken (bijvoorbeeld: wat vinden wij van generatieve AI zoals ChatGPT?).',
+      'De agenda bestaat uit een mix van concrete casussen en bredere beleids- of richtlijnvragen. De commissie adviseert zowel over individuele systemen als over categorieën van technologie.',
+      'De commissie richt zich vooral op normstellend advies: richtlijnen, kaders en standpunten over categorieën van technologie. Concrete casussen behandelt zij alleen als die principieel van aard zijn.',
+      'De commissie adviseert uitsluitend over beleid, richtlijnen en kaders. Individuele casussen handelt de lijnorganisatie zelf af binnen die kaders.'
+    ]},
+  { id:'werkwijze', short:'Agendabeheer', title:'Agendabeheer',
+    L:'Extern bepaald', R:'Zelf bepaald', def:1,
+    tags:['Volledig extern bepaald','Overwegend extern bepaald','Gemengd','Overwegend zelf bepaald','Volledig zelf bepaald'],
+    descs:[
+      'De agenda van de commissie wordt volledig door anderen bepaald. Zij heeft geen ruimte om zelf thema’s te agenderen; wat besproken wordt, wordt bij haar neergelegd.',
+      'De agenda wordt hoofdzakelijk door anderen bepaald, maar de commissie heeft beperkte ruimte om zelf onderwerpen te agenderen als iets haar opvalt.',
+      'De agenda komt in gelijke mate tot stand door externe verzoeken en door de commissie zelf, die periodiek thema’s of risicogebieden agendeert.',
+      'De commissie beheert overwegend haar eigen agenda: zij initieert periodieke toetsingen en thematische onderzoeken, naast wat door anderen wordt aangedragen.',
+      'De commissie bepaalt volledig zelfstandig haar agenda: zij monitort continu, rapporteert eigener beweging en agendeert wat zij zelf van belang acht.'
+    ]},
+  { id:'casuistiek', short:'Casusintake', title:'Casusintake',
+    L:'Ingebracht', R:'Zelf gevonden', def:1,
+    tags:['Volledig ingebracht','Primair ingebracht','Gemengd','Primair zelf gevonden','Volledig zelf gevonden'],
+    descs:[
+      'Casuïstiek wordt uitsluitend aangeleverd door de opdrachtgever of een aanmeldprocedure. De commissie kiest zelf niets. Risico: gevoelige gevallen worden mogelijk nooit aangemeld.',
+      'Primair op basis van aangeleverde casussen, maar de commissie mag ook eigen signalen oppakken als ze risico’s ziet.',
+      'De helft van de agenda bestaat uit aangeleverde casussen; de andere helft selecteert de commissie zelf op basis van risicosignalen of thematische prioriteiten.',
+      'De commissie scant actief het systeemlandschap en selecteert zelf casussen via eigen monitoring. Aangeleverde casussen worden ook behandeld.',
+      'De commissie bepaalt volledig autonoom welke casussen worden behandeld, op basis van eigen risicoanalyse en prioritering.'
+    ]},
+  { id:'scope', short:'Scope', title:'Scope',
+    L:'Smal', R:'Breed', def:1,
+    tags:['Hoog-risico AI & Impactvolle algoritmes','Alle AI-systemen','Algoritmes & AI','Data & digitalisering','Digitale ethiek breed'],
+    descs:[
+      'Uitsluitend hoog-risico AI-systemen zoals omschreven in de EU AI Act. Dit zijn systemen die significant invloed hebben op mensen, zoals bij beslissingen over uitkeringen, strafrechtelijke risicoprofielen of toegang tot diensten.',
+      'Alle geautomatiseerde besluitvorming en AI-toepassingen binnen de organisatie, ook als ze niet onder de definitie van "hoog-risico" vallen.',
+      'Zowel AI-systemen als niet-AI algoritmische processen, zoals scoringsmodellen en regelgebaseerde systemen die geen "lerende" component hebben.',
+      'Naast algoritmes en AI ook vraagstukken rondom datagebruik en datadeling, zoals bestandskoppeling, dataverzameling en digitale privacyvraagstukken.',
+      'Alle ethische vraagstukken rondom digitalisering en technologie: van algoritmes en data tot digitale dienstverlening, monitoringtechnologie en digitale rechten van betrokkenen. De breedste digitale scope.'
+    ]},
+  { id:'doorwerking', short:'Doorwerking', title:'Doorwerking van advies',
+    L:'Vrijblijvend', R:'Bindend', def:1,
+    tags:['Volledig vrijblijvend','Motiveringsplicht','Comply-or-explain','Zwaar advies','Bindend'],
+    descs:[
+      'De organisatie is niet verplicht iets met het advies te doen. Er is geen formele verantwoordingsplicht. Risico: adviezen worden genegeerd zonder gevolgen.',
+      'Als een advies niet wordt opgevolgd, moet het verantwoordelijke orgaan intern vastleggen waarom. Lichte verplichting die bijdraagt aan bewustwording en traceerbaarheid.',
+      '"Comply-or-explain": adviezen worden in principe gevolgd. Wil een organisatie afwijken, dan moet zij dit schriftelijk motiveren en registreren. Dit is een gangbare standaard in governance.',
+      'Adviezen worden in beginsel altijd gevolgd. Wil de organisatie afwijken, dan is daarvoor formele goedkeuring nodig op bestuursniveau.',
+      'De commissie heeft doorzettingsmacht: haar beslissingen zijn bindend en moeten worden gevolgd. Dit vereist een solide juridische grondslag.'
+    ]},
+  { id:'transparantie', short:'Transparantie', title:'Transparantie',
+    L:'Vertrouwelijk', R:'Publiek', def:1,
+    tags:['Vertrouwelijk','Beperkt intern','Intern openbaar','Beperkt publiek','Volledig openbaar'],
+    descs:[
+      'Adviezen en bevindingen zijn strikt vertrouwelijk. Alleen de commissie en de opdrachtgever hebben er toegang toe.',
+      'Toegankelijk voor betrokken management en directies, maar niet breder gedeeld binnen of buiten de organisatie.',
+      'Breed beschikbaar binnen de organisatie, bijvoorbeeld via het intranet of een intern jaarverslag. Medewerkers kunnen zien hoe de commissie werkt.',
+      'Samenvattingen of een jaarverslag worden extern gepubliceerd, zodat ook burgers of klanten kunnen zien hoe de organisatie ethische toetsing inricht. Details blijven intern.',
+      'Alle adviezen, besluiten en bevindingen worden actief openbaar gepubliceerd. Maximale publieke verantwoording.'
+    ]}
+];
+
+const state = {};
+DIMS.forEach(d => { state[d.id] = d.def; });
+
+/* ════ TOETSVOLUME ════ */
+let volume = null;
+const VOLUME_LABELS = ['enkele (1–5)','5 tot 15','15 tot 50','meer dan 50'];
+const VOLUME_ADVICE = [
+  'Bij enkele casussen per jaar is een eigen permanente commissie met toegewijd secretariaat al snel zwaar opgetuigd. Overweeg een ad-hoc samenstelling of een gedeelde commissie met vergelijkbare organisaties (zie Reikwijdte en Termijn).',
+  'Bij dit aantal casussen past een lichte structurele vorm: een vaste commissie met beperkte secretariële ondersteuning is doorgaans voldoende.',
+  'Bij dit aantal casussen is structurele capaciteit nodig: een vaste commissie met een (gedeeld) secretariaat en duidelijke prioriteringscriteria.',
+  'Bij dit aantal casussen is een professionele opzet noodzakelijk: een eigen secretariaat, vaste werkprocessen en mogelijk voorselectie of getrapte behandeling om de commissie niet te overbelasten (zie Middelen en Casuïstiek).'
+];
+
+function pickVolume(v) {
+  volume = v;
+  document.querySelectorAll('#volume-segs .seg').forEach((b,i)=>{ b.className='seg'+(i===v?' on':''); b.setAttribute('aria-pressed', i===v); });
+  document.getElementById('volume-advies').textContent = VOLUME_ADVICE[v];
+  updateMemo(); updateTensions();
+}
+
+/* ════ PRESETS ════ */
+const PRESETS = {
+  klankbord: { label:'Intern klankbord',
+    v:{ mandaat:1, positionering:1, reikwijdte:0, bezwaar:1, samenstelling:1, diversiteit:2, termijn:1, middelen:1, typeadvies:2, werkwijze:1, casuistiek:1, scope:1, doorwerking:1, transparantie:1 }},
+  advies:    { label:'Semi-onafhankelijk adviesorgaan',
+    v:{ mandaat:2, positionering:2, reikwijdte:0, bezwaar:2, samenstelling:2, diversiteit:3, termijn:3, middelen:2, typeadvies:2, werkwijze:2, casuistiek:2, scope:2, doorwerking:2, transparantie:2 }},
+  toets:     { label:'Onafhankelijk toetsorgaan',
+    v:{ mandaat:3, positionering:3, reikwijdte:0, bezwaar:3, samenstelling:3, diversiteit:3, termijn:4, middelen:3, typeadvies:1, werkwijze:3, casuistiek:2, scope:2, doorwerking:3, transparantie:3 }},
+  besluit:   { label:'Besluitvormend orgaan',
+    v:{ mandaat:4, positionering:4, reikwijdte:0, bezwaar:4, samenstelling:4, diversiteit:4, termijn:4, middelen:4, typeadvies:1, werkwijze:4, casuistiek:3, scope:3, doorwerking:4, transparantie:4 }}
+};
+
+function applyPreset(key) {
+  const p = PRESETS[key];
+  if (!p) return;
+  DIMS.forEach(d => {
+    const v = p.v[d.id] !== undefined ? p.v[d.id] : d.def;
+    state[d.id] = v;
+    document.querySelectorAll('#sg-'+d.id+' .seg').forEach((btn,i) => { btn.className='seg'+(i===v?' on':''); btn.setAttribute('aria-pressed', i===v); });
+    document.getElementById('desc-'+d.id).textContent = d.descs[v];
+  });
+  document.querySelectorAll('.preset-btn').forEach(b => { b.classList.remove('active-preset'); b.setAttribute('aria-pressed','false'); });
+  const pb = document.getElementById('pb-'+key);
+  if (pb) { pb.classList.add('active-preset'); pb.setAttribute('aria-pressed','true'); }
+  updateAll();
+}
+
+/* ════ TOOLTIPS ════ */
+const TIPS = {
+  mandaat:      'Bepaalt welke formele bevoegdheid de commissie heeft. Meer mandaat geeft meer impact, maar vereist ook meer bestuurlijk draagvlak en juridische verankering. Tip: de meeste overheidscommissies starten met een adviserend of adviserend-met-escalatie mandaat en bouwen dit op naarmate vertrouwen groeit.',
+  positionering:'Bepaalt hoe de commissie verankerd is in de organisatiestructuur. Let op: formele onafhankelijkheid op papier kan een schijnonafhankelijkheid zijn als het budget voor de commissie of het secretariaat j\u00e4arlijks wordt goedgekeurd door de opdrachtgever. Echte onafhankelijkheid vereist ook financi\u00eble autonomie.',
+  reikwijdte:   'Bepaalt voor welke organisaties de commissie werkt. Overweeg bij grote organisaties ook het onderscheid tussen een centrale commissie (voor de hele organisatie) versus decentrale commissies per directie of businessunit met een centrale overkoepelende kamer. Dit is geen ordinale schaal: kies de optie die het beste past.',
+  bezwaar:      'Bepaalt wat een organisatie of indiener kan doen als ze het niet eens zijn met een beslissing van de commissie. Zonder bezwaarmogelijkheid is de commissie een zwart gat voor indieners. Een goede bezwaarprocedure vergroot het vertrouwen en de legitimiteit. Dit is standaard in goed functionerende toetsingsorganen zoals medische en juridische ethische commissies.',
+  samenstelling:'Bepaalt de verhouding intern versus extern. Interne leden brengen contextkennis; externe leden brengen onafhankelijkheid en extern gezag. Bij een volledig interne commissie ontbreekt het onafhankelijk perspectief; bij een volledig externe commissie ontbreekt de praktijkkennis van de organisatie.',
+  diversiteit:  'Ethische vraagstukken raken altijd meerdere perspectieven. Veelvoorkomende disciplines in een commissie voor digitale ethiek: recht en privacy, data science of IT, ethiek of filosofie, beleid, en het primaire proces. Meer diversiteit verkleint blinde vlekken maar vraagt om goede procesbegeleiding. Overweeg ook ervaringsdeskundigheid van burgers of cliënten die door de systemen worden geraakt. Een richtgetal voor de omvang van de commissie is vijf tot negen leden.',
+  termijn:      'Bepaalt de levensduur van de commissie zelf. Ad-hoc is licht maar bouwt geen gezamenlijke oordeelslijn op; permanent verankerd maakt het mogelijk om moresprudentie te ontwikkelen: een groeiende verzameling eerdere afwegingen die consistentie en voorspelbaarheid geeft. Tip: veel organisaties starten met een pilot van een jaar.',
+  middelen:     'Bepaalt de feitelijke slagkracht van de commissie. In de praktijk is het secretariaat bepalend voor doorlooptijd en kwaliteit: het bereidt casussen voor, bewaakt voortgang en legt vast. Een commissie zonder middelen verzandt zodra de werkdruk elders stijgt. Let ook op budgettaire onafhankelijkheid: wie het budget jaarlijks toekent, heeft informele invloed.',
+  typeadvies:   'Bepaalt of de commissie adviseert over concrete casussen, over beleid en richtlijnen, of beide. Normstellend advies (bijvoorbeeld een organisatiestandpunt over generatieve AI) werkt door op alle toekomstige gevallen en vermindert het aantal losse casussen. Casusadvies blijft nodig voor situaties die niet in een richtlijn passen.',
+  werkwijze:    'Bepaalt wie de inhoudelijke agenda van de commissie zet. Als de agenda volledig extern wordt bepaald is de commissie efficiënt, maar afhankelijk van de bereidheid van anderen om gevoelige kwesties in te dienen. Een zelf bepaalde agenda is effectiever bij het signaleren van risico’s, maar vraagt meer capaciteit en een sterker mandaat om onuitgenodigd in te grijpen. Tip: laat de commissie ook vroeg in de ideefase kunnen meedenken; dat voorkomt dat er fors in een ethisch problematisch project wordt geïnvesteerd voordat er getoetst wordt. Welke gespreksmethodiek de commissie gebruikt (zoals moreel beraad, DEDA of IAMA) is een aparte inrichtingskeuze die buiten deze configurator valt.',
+  casuistiek:   'Bepaalt hoe casussen bij de commissie terechtkomen. Volledig ingebracht betekent dat de commissie afhankelijk is van anderen. Overweeg ook: kunnen individuele medewerkers of burgers direct en eventueel anoniem een casus escaleren als de lijnorganisatie dit weigert? Dit is een klokkenluidersperspectief dat in de huidige schaal niet volledig is afgedekt.',
+  scope:        'Bepaalt het werkterrein. Een smalle scope is eenvoudiger te beheersen en sluit aan bij bestaande wetgeving (EU AI Act). Een brede scope dekt meer risico’s af, maar vraagt meer capaciteit. Baken ook de grens met juridische en compliance-vragen af: een ethische commissie beoordeelt wat wenselijk is, niet (alleen) wat mag. Vragen die puur juridisch zijn horen bij de juridische afdeling thuis.',
+  doorwerking:  'Bepaalt wat er daadwerkelijk met adviezen gebeurt. Vrijblijvend advies wordt in de praktijk vaker genegeerd. "Comply-or-explain" is een bewezen aanpak: het dwingt expliciete verantwoording zonder volledige binding. Overweeg ook het vastleggen van moresprudentie: door adviezen en de onderliggende afwegingen systematisch te documenteren, ontstaat een consistente oordeelslijn waar de organisatie op kan bouwen.',
+  transparantie:'Bepaalt wie inzicht heeft in de werkzaamheden van de commissie. Meer openheid vergroot extern vertrouwen maar kan de bereidheid verminderen om gevoelige kwesties in te dienen. Voor publieke organisaties die burgers raken is minimaal ‘Beperkt publiek’ — extern gepubliceerde samenvattingen — een gangbare ondergrens.'
+};
+
+function showTip(icon, id) {
+  let tip = document.getElementById('gtip');
+  if (!tip) { tip = document.createElement('div'); tip.id='gtip'; tip.className='gtip'; tip.setAttribute('role','tooltip'); document.body.appendChild(tip); }
+  tipOpenId=id;
+  tip.textContent = TIPS[id] || '';
+  tip.style.display = 'block';
+  const r = icon.getBoundingClientRect(), tw = 290;
+  let left = r.left;
+  if (left + tw > window.innerWidth - 12) left = window.innerWidth - tw - 12;
+  if (left < 8) left = 8;
+  tip.style.left = left + 'px';
+  const arrowLeft = Math.min(Math.max(r.left + r.width/2 - left - 5, 8), tw - 20);
+  tip.style.setProperty('--arrow', arrowLeft + 'px');
+  const below = r.bottom + 8;
+  if (below + 160 > window.innerHeight) { tip.style.top=(r.top-8)+'px'; tip.style.transform='translateY(-100%)'; }
+  else { tip.style.top=below+'px'; tip.style.transform=''; }
+}
+function hideTip() { const t=document.getElementById('gtip'); if(t) t.style.display='none'; tipOpenId=null; }
+let tipOpenId=null;
+function toggleTip(el,id){ if(tipOpenId===id){ hideTip(); } else { showTip(el,id); } }
+document.addEventListener('click', function(e){ if(!e.target.closest('.info-icon')) hideTip(); });
+
+/* ════ BUILD LEFT COLUMN ════ */
+function buildDims() {
+  const col = document.getElementById('dims-col');
+  GROUPS.forEach(g => {
+    const gh = document.createElement('div'); gh.className='group-hd';
+    gh.innerHTML = '<div class="group-hd-row"><span class="group-dot" style="background:'+g.color+'"></span><h2 style="color:'+g.color+'">'+g.label+'</h2></div>'
+      + (g.sub ? '<div class="group-sub">'+g.sub+'</div>' : '');
+    col.appendChild(gh);
+    g.ids.forEach(id => {
+      const d = DIMS.find(x=>x.id===id);
+      const el = document.createElement('div'); el.className='dim';
+      let segs = d.tags.map((tag,i)=>'<button class="seg'+(i===d.def?' on':'')+'" aria-pressed="'+(i===d.def)+'" onclick="pickSeg(\''+id+'\','+i+')">'+tag+'</button>').join('');
+      el.innerHTML =
+        '<div class="dim-title-row"><span class="dim-title">'+d.title+'</span>'
+        +'<button type="button" class="info-icon" aria-label="Toelichting bij '+d.title+'" onmouseenter="showTip(this,\''+id+'\')" onmouseleave="hideTip()" onfocus="showTip(this,\''+id+'\')" onblur="hideTip()" onclick="event.stopPropagation();toggleTip(this,\''+id+'\')">i</button></div>'
+        +'<div class="seg-group" id="sg-'+id+'" role="group" aria-label="'+d.title+'">'+segs+'</div>'
+        +'<p class="dim-desc" id="desc-'+id+'">'+d.descs[d.def]+'</p>';
+      col.appendChild(el);
+    });
+  });
+}
+
+function pickSeg(id, v) {
+  state[id]=v;
+  const d=DIMS.find(x=>x.id===id);
+  document.querySelectorAll('#sg-'+id+' .seg').forEach((btn,i)=>{ btn.className='seg'+(i===v?' on':''); btn.setAttribute('aria-pressed', i===v); });
+  document.getElementById('desc-'+id).textContent=d.descs[v];
+  document.querySelectorAll('.preset-btn').forEach(b=>{ b.classList.remove('active-preset'); b.setAttribute('aria-pressed','false'); });
+  updateAll();
+}
+
+/* ════ ARCHETYPE ════ */
+function getArchetype() {
+  const m=state;
+  const pro=(m.werkwijze+m.casuistiek)/2;
+  if(m.mandaat===4) return {type:'Besluitvormend orgaan',       desc:'Neemt bindende beslissingen over de inzet van systemen. De zwaarste en meest formele variant.'};
+  if(m.mandaat===3) return m.positionering>=2
+    ? {type:'Onafhankelijk toetsorgaan',       desc:'Toetst systemen v\u00f3\u00f3r gebruik vanuit een onafhankelijke positie. Formele poortwachter.'}
+    : {type:'Intern toetsorgaan',              desc:'Toetst systemen v\u00f3\u00f3r gebruik, maar is bestuurlijk ingebed in de eigen organisatie.'};
+  if(m.mandaat===2) {
+    if(m.positionering>=2) return {type:'Semi-onafhankelijk adviesorgaan', desc:'Adviseert met escalatierecht vanuit een gedeeltelijk onafhankelijke positie.'};
+    return pro>=2.5
+      ? {type:'Actief adviesorgaan',           desc:'Adviseert met escalatierecht en zoekt actief naar risico’s en thema’s.'}
+      : {type:'Adviesorgaan',                  desc:'Geeft niet-bindend advies met escalatierecht, hoofdzakelijk op verzoek van de opdrachtgever.'};
+  }
+  if(m.mandaat===1) return m.positionering>=2
+    ? {type:'Onafhankelijk klankbord',         desc:'Adviseert vanuit een onafhankelijke positie, zonder formele doorwerkingsverplichting.'}
+    : {type:'Intern klankbord',                desc:'Informeel intern adviesorgaan, ingebed in de bestaande organisatiestructuur.'};
+  return   {type:'Signaalorgaan',              desc:'Brengt risico’s en dilemma’s onder de aandacht zonder formeel adviesrecht of bevoegdheid.'};
+}
+
+/* ════ ORG + DATE ════ */
+function formatDate(d) { return d.toLocaleDateString('nl-NL',{day:'numeric',month:'long',year:'numeric'}); }
+function updateOrgName() {
+  const name=document.getElementById('org-name-input').value.trim();
+  const el=document.getElementById('arch-org');
+  if(name){el.textContent=name;el.style.display='block';}else{el.textContent='';el.style.display='none';}
+  updateMemo();
+}
+function setDateStamp() { document.getElementById('date-stamp').textContent='Opgeslagen op '+formatDate(new Date()); }
+function updateFillerName() {
+  const n=document.getElementById('filler-name-input').value.trim();
+  const el=document.getElementById('arch-filler');
+  if(n){el.textContent='Ingevuld door '+n;el.style.display='block';}else{el.textContent='';el.style.display='none';}
+}
+
+/* ════ VALUES ════ */
+let values=[];
+function addValue() {
+  const inp=document.getElementById('value-input');
+  const raw=inp.value.trim();
+  if(!raw||values.length>=10) return;
+  if(values.some(v=>v.toLowerCase()===raw.toLowerCase())){inp.value='';return;}
+  values.push(raw); inp.value='';
+  renderValues(); updateAll(); inp.focus();
+}
+function addValueFromSelect() {
+  const sel=document.getElementById('value-select');
+  const raw=sel.value;
+  sel.selectedIndex=0;
+  if(!raw||values.length>=10) return;
+  if(values.some(v=>v.toLowerCase()===raw.toLowerCase())) return;
+  values.push(raw);
+  renderValues(); updateAll();
+}
+function removeValue(i) { values.splice(i,1); renderValues(); updateAll(); }
+function renderValues() {
+  const tags=document.getElementById('value-tags'), counter=document.getElementById('value-counter');
+  const inp=document.getElementById('value-input'), addBtn=document.getElementById('add-val-btn');
+  const chips=document.getElementById('vp-chips');
+  if(values.length===0){
+    tags.innerHTML='<span class="value-empty-msg">Nog geen waarden ingevoerd. Voeg hieronder toe.</span>';
+    chips.innerHTML='<span class="vp-empty">Nog geen waarden ingevoerd</span>';
+  } else {
+    tags.innerHTML=values.map((v,i)=>'<span class="value-tag">'+v+'<span class="vtag-x" onclick="removeValue('+i+')" title="Verwijder">\xd7</span></span>').join('');
+    chips.innerHTML=values.map(v=>'<span class="vp-chip">'+v+'</span>').join('');
+  }
+  const full=values.length>=10;
+  counter.textContent=values.length+' / 10 waarden'; counter.className='value-counter'+(full?' full':'');
+  inp.disabled=full; addBtn.disabled=full;
+  inp.placeholder=full?'Maximum van 10 waarden bereikt':'Of typ een eigen waarde\u2026';
+  const sel=document.getElementById('value-select');
+  if(sel){
+    sel.disabled=full;
+    sel.querySelectorAll('option').forEach(opt=>{
+      if(!opt.value) return;
+      opt.disabled=values.some(v=>v.toLowerCase()===opt.value.toLowerCase());
+    });
+  }
+}
+
+/* ════ DOT TRACKS ════ */
+function buildTracks() {
+  const t=document.getElementById('tracks'); t.innerHTML='';
+  GROUPS.forEach(g=>{
+    const gh=document.createElement('div'); gh.className='trk-group';
+    gh.innerHTML='<div class="trk-glbl" style="color:'+g.color+'">'+g.label+'</div>';
+    g.ids.forEach(id=>{
+      const d=DIMS.find(x=>x.id===id), v=state[id];
+      const row=document.createElement('div'); row.className='trk-row'; row.id='trk-'+id;
+      row.innerHTML='<span class="trk-name">'+d.short+'</span><span class="trk-val" id="trkv-'+id+'">'+d.tags[v]+'</span>';
+      gh.appendChild(row);
+    });
+    t.appendChild(gh);
+  });
+}
+function refreshTracks() {
+  DIMS.forEach(d=>{
+    const v=state[d.id];
+    const el=document.getElementById('trkv-'+d.id);
+    if(el) el.textContent=d.tags[v];
+  });
+}
+
+/* ════ MEMO ════ */
+function updateMemo() {
+  const m=state;
+  const ph={
+    mandaat:      ['een signalerende rol zonder formeel adviesrecht','een adviserend mandaat (niet-bindend)','een adviserend mandaat met escalatierecht','een toetsende poortwachtersfunctie','een besluitvormend bindend mandaat'],
+    positionering:['volledig ingebed in de bestaande governance','losjes ingebed met rapportagelijn aan een leidinggevende','semi-onafhankelijk op basis van een instellingsbesluit','grotendeels onafhankelijk met beperkte bestuurlijke inbedding','volledig onafhankelijk van de lijnorganisatie'],
+    reikwijdte:   ['uitsluitend gericht op de eigen organisatie','primair gericht op de eigen organisatie met adviesruimte naar partners','gedeeld met verwante organisaties in de keten','sectorbreed ingezet voor meerdere organisaties','volledig interorganisationeel als onafhankelijk sectororgaan'],
+    bezwaar:      ['geen bezwaarmogelijkheid voor indieners','informeel overleg bij bezwaar','een formeel herzieningsverzoek bij dezelfde commissie','onafhankelijke herbeoordeling door een derde','een volledige formele bezwaarprocedure met vaste termijnen'],
+    samenstelling:['uitsluitend interne medewerkers','een meerderheid interne leden aangevuld met externe adviseurs','een gemengde intern-externe samenstelling','een meerderheid externe experts aangevuld met interne leden','uitsluitend externe onafhankelijke experts'],
+    diversiteit:  ['uniforme disciplinaire expertise','hoofdzakelijk een discipline met beperkte aanvulling','een multidisciplinaire samenstelling','interdisciplinaire expertise met aandacht voor diversiteit in perspectief','maximale diversiteit in discipline, achtergrond en perspectief'],
+    termijn:      ['ad-hoc en wordt per casus bijeengeroepen','als pilot voor een afgebakende periode','voor de duur van een programma of opgave','permanent met een vaste evaluatiehorizon','permanent verankerd in de governance'],
+    middelen:     ['zonder eigen middelen of ondersteuning','met beperkte secretari\u00eble ondersteuning','met een gedeeld secretariaat','met een eigen toegewijd secretariaat','met eigen budget en een toegewijd secretariaat'],
+    typeadvies:   ['uitsluitend over concrete casussen','vooral over casussen, met incidenteel beleidsadvies','over zowel casussen als beleid en richtlijnen','vooral normstellend over beleid en richtlijnen','uitsluitend over beleid'],
+    werkwijze:    ['met een volledig extern bepaalde agenda','met een overwegend extern bepaalde agenda en beperkte eigen signaalruimte','met een gemengd bepaalde agenda','met een overwegend zelf beheerde agenda en eigen monitoring','met een volledig zelf beheerde agenda'],
+    casuistiek:   ['uitsluitend op basis van aangeleverde casussen','primair aangeleverd met beperkte eigen selectieruimte','een gemengde agenda van aangeleverde en zelf gevonden casuïstiek','primair op basis van eigen monitoring en risicodetectie','volledig autonoom in de selectie van casuïstiek'],
+    scope:        ['uitsluitend hoog-risico AI en impactvolle algoritmes conform de EU AI Act','alle AI-toepassingen en geautomatiseerde besluitvorming','algoritmes en AI inclusief niet-AI algoritmische processen','algoritmes, AI en bredere vraagstukken rondom datagebruik','de volle breedte van digitale ethiek, van algoritmes en data tot digitale dienstverlening'],
+    doorwerking:  ['volledig vrijblijvend zonder verantwoordingsplicht','met motiveringsplicht indien het advies niet wordt opgevolgd','op basis van comply-or-explain met registratie van afwijkingen','als zwaar advies waarvan afwijking bestuurlijke goedkeuring vereist','bindend met doorzettingsmacht'],
+    transparantie:['volledig vertrouwelijk en uitsluitend voor de opdrachtgever','beperkt intern voor betrokken management','breed intern toegankelijk via intranet en jaarverslag','deels extern gepubliceerd via samenvattingen of een jaarverslag','volledig openbaar gepubliceerd']
+  };
+  const p=id=>'<strong>'+ph[id][m[id]]+'</strong>';
+  const volStr = volume!==null ? 'De organisatie verwacht jaarlijks '+VOLUME_LABELS[volume]+' casussen aan de commissie voor te leggen. ' : '';
+  const org=document.getElementById('org-name-input').value.trim();
+  const orgStr=org?'Organisatie: <strong>'+org+'</strong>. ':'';
+  const valStr=values.length>0?'De commissie toetst aan de volgende waarden: <strong>'+values.join(', ')+'</strong>. ':'<em style="color:var(--muted)">Nog geen waarden ingevoerd voor het waardenkader.</em> ';
+  document.getElementById('memo-body').innerHTML = orgStr+volStr+valStr+
+    'De commissie heeft '+p('mandaat')+' en is '+p('positionering')+'. '+
+    'De reikwijdte is '+p('reikwijdte')+'. '+
+    'Voor bezwaar geldt: '+p('bezwaar')+'. '+
+    'De samenstelling bestaat uit '+p('samenstelling')+' en kenmerkt zich door '+p('diversiteit')+'. '+
+    'De commissie bestaat '+p('termijn')+' en werkt '+p('middelen')+'. '+
+    'De commissie adviseert '+p('typeadvies')+'. Zij werkt '+p('werkwijze')+' en behandelt casuïstiek '+p('casuistiek')+'. '+
+    'De scope omvat '+p('scope')+'. '+
+    'Adviezen werken door '+p('doorwerking')+' en zijn '+p('transparantie')+'.';
+}
+
+/* ════ TENSIONS ════ */
+function updateTensions() {
+  const m=state, el=document.getElementById('tensions');
+  el.innerHTML='';
+  const list=[];
+  if(m.mandaat===4&&m.positionering<=1) list.push('<strong>Mandaat vs. positionering:</strong> Een besluitvormend mandaat vereist stevige onafhankelijkheid. Een volledig ingebedde commissie kan geen geloofwaardige bindende beslissingen nemen over de eigen organisatie.');
+  if(m.mandaat>=3&&m.samenstelling===0) list.push('<strong>Mandaat vs. samenstelling:</strong> Een toetsend of besluitvormend mandaat met uitsluitend interne leden vergroot het risico op partijdigheid en ondermijnt het gezag van de commissie.');
+  if(m.samenstelling>=3&&m.positionering<=1) list.push('<strong>Samenstelling vs. positionering:</strong> Een overwegend externe samenstelling past slecht bij een volledig ingebedde commissie. Overweeg formele onafhankelijkheid via een instellingsbesluit.');
+  if(m.werkwijze>=3&&m.mandaat<=1) list.push('<strong>Agendabeheer vs. mandaat:</strong> Een zelf beheerde agenda is minder effectief zonder formeel escalatierecht. Signalen die de commissie zelf agendeert kunnen dan zonder formele consequenties worden genegeerd.');
+  if(m.doorwerking>=3&&m.positionering<=1) list.push('<strong>Doorwerking vs. positionering:</strong> Sterk doorwerkende adviezen vereisen formele verankering. Een volledig ingebedde commissie mist de gezagspositie voor comply-or-explain of binding.');
+  if(m.doorwerking===0&&m.mandaat>=3) list.push('<strong>Doorwerking vs. mandaat:</strong> Een toetsend of besluitvormend mandaat biedt weinig houvast zonder enige doorwerkingsverplichting. Overweeg minimaal een motiveringsplicht.');
+  if(m.casuistiek<=1&&m.werkwijze>=3) list.push('<strong>Casusintake vs. agendabeheer:</strong> Een zelf beheerde agenda is lastig te realiseren als de commissie volledig afhankelijk is van aangeleverde casussen. Overweeg minimale eigen ruimte in de casusintake.');
+  if(m.reikwijdte>=2&&m.positionering<=1) list.push('<strong>Reikwijdte vs. positionering:</strong> Een commissie voor meerdere organisaties kan niet volledig ingebed zijn in de lijnorganisatie van één ervan. Formele onafhankelijkheid is een vereiste.');
+  if(m.diversiteit===0&&m.scope>=3) list.push('<strong>Diversiteit vs. scope:</strong> Een brede ethische scope vereist meerdere invalshoeken. Uniforme expertise leidt tot blinde vlekken.');
+  if(m.bezwaar===0&&m.mandaat>=3) list.push('<strong>Bezwaar vs. mandaat:</strong> Een toetsend of besluitvormend orgaan zonder bezwaarmogelijkheid mist een essentiële waarborg voor de legitimiteit van zijn oordelen. Overweeg minimaal een informele herzieningsmogelijkheid.');
+  if(m.diversiteit>=4&&m.werkwijze<=1) list.push('<strong>Diversiteit vs. agendabeheer:</strong> Maximale diversiteit vraagt intensieve procesbegeleiding en meer besluitvormingstijd. Dit past moeilijk bij een volledig extern bepaalde agenda waarbij snel op ad-hoc verzoeken moet worden gereageerd.');
+  if(m.transparantie>=4&&m.scope>=2) list.push('<strong>Transparantie vs. gevoelige systemen:</strong> Volledig openbare publicatie botst bij gevoelige systemen \u2014 zoals handhavings- en fraudedetectiesystemen, monitoringtechnologie, biometrie of vertrouwelijke datadeling \u2014 met legitieme geheimhoudingsbelangen, zoals veiligheid, staatsgeheim of intellectueel eigendom. Overweeg een uitzondering voor gevoelige categorie\u00ebn.');
+  if(m.samenstelling<=1&&m.mandaat>=3) list.push('<strong>Samenstelling vs. mandaat (rechtsbescherming):</strong> Interne leden van een toetsende of besluitvormende commissie kunnen carri\u00e8re- of reputatierisico lopen bij kritisch advies over projecten van leidinggevenden. Overweeg formele positiebescherming, vergelijkbaar met die van ondernemingsraadleden.');
+  if(m.middelen===0&&m.mandaat>=3) list.push('<strong>Middelen vs. mandaat:</strong> Een toetsend of besluitvormend mandaat zonder eigen middelen of secretariaat is niet uitvoerbaar. De doorlooptijd en kwaliteit van toetsing staan of vallen met de ondersteuning.');
+  if(m.middelen<=1&&m.werkwijze>=3) list.push('<strong>Middelen vs. agendabeheer:</strong> Een zelf beheerde agenda (eigen monitoring, thematische onderzoeken) vraagt structurele capaciteit. Zonder secretariaat blijft eigen initiatief een papieren ambitie.');
+  if(m.typeadvies===4&&m.mandaat>=3) list.push('<strong>Type advies vs. mandaat:</strong> Een toetsend of besluitvormend mandaat veronderstelt beoordeling van concrete systemen. Een commissie die uitsluitend beleidsadvies geeft kan die poortwachtersrol niet vervullen.');
+  if(m.typeadvies===0&&m.werkwijze>=3) list.push('<strong>Type advies vs. agendabeheer:</strong> Een commissie die zelf haar agenda beheert, agendeert doorgaans thema’s en risicogebieden; dat leidt tot richtlijn- of beleidsadvies. Uitsluitend casusadvies past daar niet goed bij.');
+  if(volume===0&&m.termijn>=3&&m.middelen>=3) list.push('<strong>Termijn en middelen vs. aantal casussen:</strong> Bij enkele casussen per jaar staat een permanente commissie met eigen secretariaat niet in verhouding tot de werklast. Overweeg een ad-hoc vorm of een gedeelde commissie met vergelijkbare organisaties.');
+  if(volume===3&&m.middelen<=1) list.push('<strong>Middelen vs. aantal casussen:</strong> Meer dan 50 casussen per jaar is niet haalbaar zonder structurele ondersteuning. Een toegewijd secretariaat en vaste werkprocessen zijn bij dit aantal noodzakelijk.');
+  if(m.transparantie===0&&m.mandaat>=3) list.push('<strong>Transparantie vs. mandaat:</strong> Een toetsende of besluitvormende commissie die volledig vertrouwelijk werkt, ondermijnt de democratische controle op systemen die burgers raken. Overweeg minimaal interne openbaarheid.');
+  if(m.typeadvies===0&&m.termijn<=1) list.push('<strong>Type advies vs. termijn:</strong> Een ad-hoc of pilotcommissie die uitsluitend casusadvies geeft, mist de continuïteit om patronen in casussen te herkennen en daaruit richtlijnen te ontwikkelen. Overweeg permanente verankering of ruimte voor incidenteel beleidsadvies.');
+  if(m.positionering>=3&&m.middelen<=1) list.push('<strong>Positionering vs. middelen:</strong> Formele onafhankelijkheid zonder eigen middelen of secretariaat is onafhankelijkheid op papier. De commissie blijft feitelijk afhankelijk van de opdrachtgever voor uitvoering.');
+  if(volume>=2&&m.typeadvies===0) list.push('<strong>Aantal casussen vs. type advies:</strong> Bij vijftien of meer casussen per jaar zonder normstellend advies moet elke casus opnieuw individueel beoordeeld worden. Beleidsadvies over categorieën van technologie voorkomt herhaalde casusbehandeling.');
+  if(m.bezwaar>=3&&m.positionering<=1) list.push('<strong>Bezwaar vs. positionering:</strong> Onafhankelijke herbeoordeling of een formele bezwaarprocedure vereist een onafhankelijke commissiepositie; anders is de heroverweging niet geloofwaardig.');
+  if(m.werkwijze===0&&m.casuistiek===4) list.push('<strong>Agendabeheer vs. casusintake:</strong> Een commissie met een volledig extern bepaalde agenda kan tegelijk moeilijk zelf actief casussen opsporen; zelfstandige signaaldetectie vereist een vorm van eigen initiatief in agendabeheer. Overweeg minstens een beperkt gemengd agendabeheer.');
+  if(list.length===0) { el.innerHTML='<p class="no-tensions">Geen directe spanningsvelden voor de huidige configuratie.</p>'; }
+  else { list.forEach(t=>{ const d=document.createElement('div'); d.className='tension-item'; d.innerHTML=t; el.appendChild(d); }); }
+  const pt=document.getElementById('panel-tensions');
+  if(pt){
+    if(list.length===0){ pt.style.display='none'; pt.textContent=''; }
+    else { pt.style.display='block'; pt.textContent='⚠ '+list.length+(list.length===1?' aandachtspunt':' aandachtspunten')+' ↓'; }
+  }
+}
+
+/* ════ ORCHESTRATE ════ */
+function updateAll() {
+  const arch=getArchetype();
+  document.getElementById('arch-type').textContent=arch.type;
+  document.getElementById('arch-desc').textContent=arch.desc;
+  refreshTracks(); updateMemo(); updateTensions();
+}
+
+/* ════ COPY / RESET ════ */
+function copyMemo() {
+  const arch=getArchetype();
+  const volStr = volume!==null ? 'De organisatie verwacht jaarlijks '+VOLUME_LABELS[volume]+' casussen aan de commissie voor te leggen. ' : '';
+  const org=document.getElementById('org-name-input').value.trim();
+  const orgLine=org?'Organisatie: '+org+'\n':'';
+  const filler=document.getElementById('filler-name-input').value.trim();
+  const fillerLine=filler?'Ingevuld door: '+filler+'\n':'';
+  const volLine=volume!==null?'Verwacht aantal casussen: '+VOLUME_LABELS[volume]+' per jaar\n':'';
+  const dateLine='Datum: '+formatDate(new Date())+'\n';
+  const valLine=values.length>0?'Waarden: '+values.join(', ')+'\n\n':'';
+  const memo=document.getElementById('memo-body').innerText;
+  const labels=DIMS.map(d=>d.title+': '+d.tags[state[d.id]]).join('\n');
+  const tensions=document.getElementById('tensions').innerText;
+  const txt='PROFIEL ETHISCHE COMMISSIE\n\n'+orgLine+fillerLine+volLine+dateLine+'\nType: '+arch.type+'\n\n'+valLine+labels+'\n\nBESCHRIJVING\n'+memo+'\n\nSPANNINGSVELDEN\n'+tensions;
+  setDateStamp();
+  navigator.clipboard.writeText(txt).then(()=>{
+    const b=document.getElementById('copy-btn'), o=b.textContent;
+    b.textContent='\u2713 Gekopieerd'; setTimeout(()=>{b.textContent=o;},1800);
+  });
+}
+function saveProfile() {
+  if (typeof html2canvas === 'undefined') {
+    alert('Opslaan als afbeelding vereist een internetverbinding om de benodigde bibliotheek te laden. Controleer de internetverbinding en probeer het opnieuw.');
+    return;
+  }
+  setDateStamp();
+  const btn = document.getElementById('save-btn');
+  const orig = btn.textContent;
+  btn.textContent = 'Bezig\u2026'; btn.disabled = true;
+  const panel = document.querySelector('.panel');
+  html2canvas(panel, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: '#FFFFFF',
+    logging: false
+  }).then(canvas => {
+    const org = document.getElementById('org-name-input').value.trim();
+    const slug = (org || 'commissie').toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'') || 'commissie';
+    const a = document.createElement('a');
+    a.download = 'commissieprofiel-' + slug + '.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+    btn.textContent = '\u2713 Opgeslagen'; 
+    setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2000);
+  }).catch(() => {
+    btn.textContent = orig; btn.disabled = false;
+  });
+}
+
+/* ════ INIT ════ */
+buildDims(); buildTracks(); renderValues(); updateAll();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" onload="(function(){var b=document.getElementById('save-btn');if(b){b.disabled=false;b.removeAttribute('title');}})()" onerror="(function(){var b=document.getElementById('save-btn');if(b){b.title='Opslaan als afbeelding vereist internetverbinding';}})()"></script>
+</body>
+</html>

@@ -33,7 +33,7 @@ De uitkomst is nadrukkelijk een startpunt voor het gesprek, geen voorschrift. De
 
 ## Achtergrond
 
-De configurator is de uitkomst van onderzoek dat is uitgevoerd in de periode april 2026 – oktober 2026 naar best-practices in de opzet van een ethische commissie. Daarbij is gekeken naar bestaande commissies binnen en buiten de Rijksoverheid, naar academische literatuur en naar praktijkervaringen. Gesprekken zijn gevoerd waarin zowel het perspectief van innovatie als van reguliere IV-trajecten is meegenomen. Aanvullend is input opgehaald bij de werkgroep ethische commissies van de Community of Practice "Digitale Ethiek voor overheden" en bij collega's van de Directie Artificiële Intelligentie, Gegevensbescherming en Privacy (DAIGP), specifiek degenen die zich richten op het thema ethisch verantwoorde AI (EVAI).
+De configurator is de uitkomst van onderzoek dat is uitgevoerd in de periode april 2026 – oktober 2026 naar best-practices in de opzet van een ethische commissie. Daarbij is gekeken naar bestaande commissies binnen en buiten de Rijksoverheid, naar academische literatuur en naar praktijkervaringen. Gesprekken zijn gevoerd waarin zowel het perspectief van innovatie als van reguliere IV-trajecten is meegenomen. Aanvullend is input opgehaald bij de Community of Practice "Digitale Ethiek voor overheden", bij collega's van de Directie Artificiële Intelligentie, Gegevensbescherming en Privacy (DAIGP) van het Ministerie van Justitie en Veiligheid, en bij collega's van het Rijks ICT Gilde.
 
 ## Status
 
